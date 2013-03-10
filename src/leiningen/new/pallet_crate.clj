@@ -30,6 +30,7 @@ An optional namespace prefix may be specified."
                 ["project.clj" (render "project.clj" data)]
                 ["profiles.clj" (render "profiles.clj" data)]
                 [".gitignore" (render "gitignore" data)]
+                ["release.sh" (render "release.sh" data)]
                 ["resources/pallet_crate/{{name}}_crate/meta.edn"
                  (render "meta.edn" data)]
                 ["doc-src/USAGE.md" (render "USAGE.md" data)]
