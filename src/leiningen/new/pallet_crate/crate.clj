@@ -33,13 +33,7 @@
    (:install-strategy settings) settings
    :else (assoc settings
            :install-strategy :packages
-           :packages {:apt ["{{name}}"]
-                      :aptitude ["{{name}}"]
-                      :yum ["{{name}}"]
-                      :pacman ["{{name}}"]
-                      :zypper ["{{name}}"]
-                      :portage ["{{name}}"]
-                      :brew ["{{name}}"]})))
+           :packages ["{{name}}"])))
 
 (defplan settings
   "Settings for {{name}}"
