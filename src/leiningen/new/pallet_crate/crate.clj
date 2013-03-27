@@ -37,6 +37,7 @@
            :install-strategy :packages
            :packages ["curl"])))
 
+
 (defplan settings
   "Settings for {{name}}"
   [settings {:keys [instance-id] :as options}]
@@ -80,7 +81,10 @@
   "Write all config files"
   [{:keys [instance-id config] :as options}]
   (let [{:keys [] :as settings} (get-settings {{kw}} options)]
-    (config-file settings "{{name}}.conf" {:content (str config)})))
+    (config-file settings "{{name}}.conf" {:content (str config)})
+    (exec-checked-script "download my buddy Isaac"
+                         ("curl" "-o" "/tmp/my-file"
+                          "http://en.wikipedia.org/wiki/Isaac_newton"))))
 
 ;;; # Server spec
 (defn server-spec
@@ -94,8 +98,6 @@
               (user options)
               (install options))
     :configure (plan-fn
-                (exec-checked-script "download my buddy Isaac"
-                  ("curl" "-o" "/tmp/my-file"
-                          "http://en.wikipedia.org/wiki/Isaac_newton"))
-                 ;(run options)
+                (configure options)
+                ;;(run options)
                 )}))
