@@ -3,7 +3,8 @@
                  [com.palletops/crates "0.8.0-SNAPSHOT"]
                  [ch.qos.logback/logback-classic "1.0.9"]]
   :plugins [[lein-set-version "0.3.0"]
-            [lein-resource "0.3.2"]]
+            [lein-resource "0.3.2"]
+            [com.palletops/lein-pallet-crate "0.1.0"]]
   :aliases {"live-test-up"
             ["pallet" "up"
              "--phases" "install,configure,test"
