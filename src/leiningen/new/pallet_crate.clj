@@ -27,6 +27,9 @@ An optional namespace prefix may be specified."
        (debug "data" data)
        (->files data
                 ["src/{{sanitized}}.clj" (render "crate.clj" data)]
+                ["test/{{sanitized}}_test.clj" (render "test.clj" data)]
+                ["dev-resources/logback-test.xml" (render "logback-test.xml" data)]
+                ["pallet.clj" (render "pallet.clj" data)]
                 ["project.clj" (render "project.clj" data)]
                 ["profiles.clj" (render "profiles.clj" data)]
                 [".gitignore" (render "gitignore" data)]

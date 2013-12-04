@@ -1,18 +1,20 @@
 ;; TODO edit this with links to the software being installed and configured
 (ns {{ns}}
   "A [pallet](https://palletops.com/) crate to install and configure {{name}}"
-  [pallet.action :refer [with-action-options]]
-  [pallet.actions :refer [directory exec-checked-script remote-directory
-                          remote-file]
-                  :as actions]
-  [pallet.api :refer [plan-fn] :as api]
-  [pallet.crate :refer [assoc-settings defmethod-plan defplan get-settings]]
-  [pallet.crate-install :as crate-install]
-  [pallet.stevedore :refer [fragment]]
-  [pallet.script.lib :refer [config-root file]]
-  [pallet.utils :refer [apply-map]]
-  [pallet.version-dispatch :refer [defmethod-version-plan
-                                   defmulti-version-plan]])
+  (:require
+   [pallet.action :refer [with-action-options]]
+   [pallet.actions :refer [directory exec-checked-script remote-directory
+                           remote-file]
+    :as actions]
+   [pallet.api :refer [plan-fn] :as api]
+   [pallet.crate :refer [assoc-settings defmethod-plan defplan get-settings]]
+   [pallet.crate-install :as crate-install]
+   [pallet.stevedore :refer [fragment]]
+   [pallet.script.lib :refer [config-root file]]
+   [pallet.utils :refer [apply-map deep-merge]]
+   [pallet.version-dispatch :refer [defmethod-version-plan
+                                    defmulti-version-plan]]
+   [clojure.tools.logging :as log]))
 
 ;;; # Settings
 (defn default-settings
@@ -33,12 +35,13 @@
    (:install-strategy settings) settings
    :else (assoc settings
            :install-strategy :packages
-           :packages ["{{name}}"])))
+           :packages ["curl"])))
+
 
 (defplan settings
   "Settings for {{name}}"
-  [{:keys [instance-id] :as settings}]
-  (let [settings (merge (default-settings) settings)
+  [settings {:keys [instance-id] :as options}]
+  (let [settings (deep-merge (default-settings) settings)
         settings (settings-map (:version settings) settings)]
     (assoc-settings {{kw}} settings {:instance-id instance-id})))
 
@@ -56,7 +59,7 @@
 ;;; # Install
 (defplan install
   "Install {{name}}"
-  [& {:keys [instance-id]}]
+  [ {:keys [instance-id]}]
   (let [settings (get-settings {{kw}} {:instance-id instance-id})]
     (crate-install/install {{kw}} instance-id)))
 
@@ -76,21 +79,25 @@
 
 (defplan configure
   "Write all config files"
-  [{:keys [instance-id] :as options}]
+  [{:keys [instance-id config] :as options}]
   (let [{:keys [] :as settings} (get-settings {{kw}} options)]
-    (config-file settings "{{name}}.conf" {:content (str config)})))
+    (config-file settings "{{name}}.conf" {:content (str config)})
+    (exec-checked-script "download my buddy Isaac"
+                         ("curl" "-o" "/tmp/my-file"
+                          "http://en.wikipedia.org/wiki/Isaac_newton"))))
 
 ;;; # Server spec
 (defn server-spec
   "Returns a server-spec that installs and configures {{name}}."
-  [settings & {:keys [instance-id] :as options}]
+  [settings & {:keys [instance-id config] :as options}]
   (api/server-spec
    :phases
    {:settings (plan-fn
-                ({{sanitized}}/settings (merge settings options)))
+               ({{ns}}/settings settings options))
     :install (plan-fn
               (user options)
-              (install :instance-id instance-id))
+              (install options))
     :configure (plan-fn
-                 (config options)
-                 (run options))}))
+                (configure options)
+                ;;(run options)
+                )}))
